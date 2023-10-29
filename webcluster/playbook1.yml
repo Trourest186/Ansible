@@ -1,0 +1,21 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  tasks:
+    - ping:
+    - name: httpd installed
+      ansible.builtin.apt:
+        update_cache: yes
+        name: apache2
+        state: latest
+    - name: custom index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        src: ./website/web.html
+    - name: apache2 service enabled
+      ansible.builtin.service:
+        name: apache2
+        enabled: true
+        state: started
