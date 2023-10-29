@@ -1,0 +1,25 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  vars:
+    app_dir: nodejs
+    app_version: v2.1.1
+  vars_files:
+    - ./vars/db_infor.yaml
+  tasks:
+    - name: Show directory
+      ansible.builtin.debug:
+        msg: 'App version to deploy is: {{app_version}}'
+
+    - name: Create directory on Debian for app
+      ansible.builtin.file:
+        path: '$HOME/{{app_dir}}'
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+    - name: Show MySQL connection string
+      ansible.builtin.debug:
+        msg: 'Server={{db_host}};Dabase={{db_user}};Pwd={{db_pass}};'

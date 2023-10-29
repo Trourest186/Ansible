@@ -1,0 +1,34 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  
+  tasks:
+    - name: Install firewall on Ubuntu
+      ansible.builtin.apt:
+        name: ufw
+        state: latest
+    - name: permit traffic in default zone for SSH service
+      community.general.ufw:
+        port: ssh
+        rule: allow
+    - name: permit traffic in default zone for Ports
+      community.general.ufw:
+        # port: 81
+        # proto: tcp
+        # rule: allow
+        # state: enabled
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+        rule: allow
+        state: "{{ item.state }}"
+      with_items:
+        - { port: "8080", proto: "tcp", state: "enabled" }
+        - { port: "161:162", proto: "udp", state: "enabled" }
+        - { port: "81", proto: "tcp", state: "enabled" }
+    - name: Enable and Start firewall service
+      ansible.builtin.service:
+        name: ufw
+        enabled: true
+        state: started

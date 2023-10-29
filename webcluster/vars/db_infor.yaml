@@ -1,0 +1,3 @@
+db_host: 10.0.10.223
+db_user: ubuntu
+db_pass: 1

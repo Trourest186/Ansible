@@ -32,13 +32,13 @@
         marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
         insertafter: "<body>"
         block: |
-          <h2> welcome to Ansible </h2>
+          <h2> Welcome to Ansible </h2>
           <p> Last updated </p>
-    - name: Apache to listen on 8080
+    - name: 'Change Apache port {{ web_port }}'
       ansible.builtin.lineinfile:
         path: /etc/apache2/ports.conf
-        regexp: Listen 80
-        line: Listen 8080
+        regexp: Listen 8080
+        line: 'Listen {{web_port}}'
       notify: Restart Apache
 
   handlers:
