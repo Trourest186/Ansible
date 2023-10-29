@@ -1,0 +1,37 @@
+---
+- hosts: configuration
+  gather_facts: true
+  become: true
+  remote_user: ubuntu
+  tasks:
+    #    - name: Get fact only
+    #  ansible.builtin.debug:
+    #    msg: "Get information about Managed Nodes"
+    #- name: Print fact variable
+    #  ansible.builtin.debug:
+    #    var: ansible_facts
+    - name: save all facts to host specific file
+      copy:
+        content: "{{ ansible_facts | to_nice_json }}"
+        dest: "{{ playbook_dir }}/fact.txt "
+      delegate_to: localhost
+    - name: Get fact only
+      ansible.builtin.debug:
+        msg: |
+          "Get information about Managed Nodes"
+          "List of IPv4: {{ ansible_facts.all_ipv4_addresses}}"
+          "OS_family {{ ansible_facts.os_family }}"
+    - name: Run only if Debian family
+      ansible.builtin.debug:
+        msg: "This is Debian family os, then use apt install packages"
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Check OS before run
+      ansible.builtin.shell:
+        echo "Run command when OS = Debian"
+      register: showecho
+      when: ansible_facts['os_family'] == "Debian"
+    
+    - name: Showecho
+      debug:
+        msg: "{{ showecho.stdout }}"
