@@ -1,0 +1,18 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  tasks:
+    - name: Get system uptime
+      ansible.builtin.shell:
+        "uptime"
+      register: showtime
+    - name: Show register variable
+      # debug:
+      # msg: "Thoi gian bat may {{showtime.stdout}}"
+      ansible.builtin.debug:
+        msg: "Hien thi noi dung output cua lenh uptime"
+    - name: Print variable
+      ansible.builtin.debug:
+        var: showtime.stdout
