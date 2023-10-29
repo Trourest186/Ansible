@@ -1,0 +1,47 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  tasks:
+    - ping:
+
+    - name: apache2 installed
+      ansible.builtin.apt:
+        update_cache: yes
+        name: apache2
+        state: latest
+    - name: custom index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        src: ./website/web.html
+    - name: apache2 service enabled
+      ansible.builtin.service:
+        name: apache2
+        enabled: true
+        state: started
+    - name: Add line to web
+      ansible.builtin.lineinfile:
+        path: /var/www/html/index.html
+        line: <h2> Add text to website <h2/>
+        state: present
+    - name: Add multiple line to web
+      ansible.builtin.blockinfile:
+        path: /var/www/html/index.html
+        marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+        insertafter: "<body>"
+        block: |
+          <h2> welcome to Ansible </h2>
+          <p> Last updated </p>
+    - name: Apache to listen on 8080
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: Listen 80
+        line: Listen 8080
+      notify: Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
