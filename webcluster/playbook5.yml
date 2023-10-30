@@ -1,0 +1,35 @@
+---
+- hosts: configuration
+  gather_facts: false
+  become: true
+  remote_user: ubuntu
+  tasks:
+    - name: Stop Apache2 service
+      ansible.builtin.service:
+        name: apache2
+        state: stopped
+        enabled: no
+
+    - name: Remove Apache2 package and its dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+        autoremove: yes
+      loop:
+        - apache2
+        - apache2-bin
+        - apache2-data
+        - apache2-utils
+
+    - name: Delete Apache2 configuration and data
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apache2
+        - /var/www/html
+
+    - name: Delete final
+      ansible.builtin.shell:
+        cmd: dpkg --purge apache2
+

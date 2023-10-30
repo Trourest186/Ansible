@@ -37,9 +37,14 @@
     - name: 'Change Apache port {{ web_port }}'
       ansible.builtin.lineinfile:
         path: /etc/apache2/ports.conf
-        regexp: Listen 8080
+        regexp: Listen 80
         line: 'Listen {{web_port}}'
       notify: Restart Apache
+
+    - name: Delete package
+      ansible.builtin.apt:
+        name: apache2
+        state: absent
 
   handlers:
     - name: Restart Apache
