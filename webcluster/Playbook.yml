@@ -1,0 +1,52 @@
+---
+- hosts: configuration
+  become: true
+  gather_facts: false
+  remote_user: ubuntu
+  vars:
+    project_path: /var/www/nodejs
+      #gitlab_username: nodejs1_token
+      #gitlab_deploy_token: t7yP3F1ugT7Db9zbfvLx
+    ansible_password_file: ./vars/vault_pass.txt
+  vars_files:
+    - ./vars/token.yml
+
+  tasks:
+    #- name: Use vault password from file
+      #set_fact:
+        #ansible_vault_password_file: vault_past.txt\
+          #when: vault_password is not defined
+    - name: Install NPM
+      ansible.builtin.apt:
+        name: npm
+        state: present
+    - name: Install PM2
+      community.general.npm:
+        name: pm2
+        global: yes
+    - name: Delete old pm2 process
+      ansible.builtin.shell:
+        cmd: "pm2 delete nodejs | true"
+    - name: Remove Folder
+      ansible.builtin.file:
+        path: "{{project_path}}"
+        state: absent
+    - name: Create a Folder for project
+      ansible.builtin.file:
+        path: "{{project_path}}"
+        state: directory
+        mode: '0755'
+        recurse: yes
+    - name: Clone Project A git repo
+      ansible.builtin.git:
+        repo: 'https://{{gitlab_username}}:{{gitlab_deploy_token}}@gitlab.com/tgpham26/ansible.git'
+        dest: '{{project_path}}'
+    - name: Install dependency packages
+      ansible.builtin.shell:
+        cmd: npm install
+        chdir: "{{project_path}}"
+    - name: Run PM2 app.js
+      ansible.builtin.shell:
+        cmd: pm2 start "{{project_path}}/app.js" --name nodejs
+
+
