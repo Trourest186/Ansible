@@ -50,3 +50,4 @@
         cmd: pm2 start "{{project_path}}/app.js" --name nodejs
 
 
+# ansible-playbook -i hosts --vault-password-file=path/to/vault_pass.txt Playbook.yml
